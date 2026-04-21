@@ -5,6 +5,8 @@
 // GH_REPO = github repositories
 // GH_BRANCH = repositories branch
 // TOKEN = password
+// TOKEN2 = alternate password (used when path contains KW_TOKEN2)
+// KW_TOKEN2 = path keyword to trigger TOKEN2
 // URL302 = redirect url
 
 export default {
@@ -74,7 +76,10 @@ export default {
   async function mainFunction(env, request, url, githubRawUrl) {
     let token = "";
     if (env.GH_TOKEN && env.TOKEN && url.searchParams.get("token")) {
-      if (env.TOKEN == url.searchParams.get("token")) {
+      const kw = env.KW_TOKEN2;
+      const useToken2 = kw && url.pathname.includes(kw);
+      const expectedToken = useToken2 ? (env.TOKEN2 || env.TOKEN) : env.TOKEN;
+      if (expectedToken == url.searchParams.get("token")) {
         token = env.GH_TOKEN;
       } else {
         return new Response("403", { status: 403 });
